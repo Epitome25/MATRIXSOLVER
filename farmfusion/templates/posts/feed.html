@@ -1,0 +1,515 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="csrf-token" content="{{ csrf_token }}" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <link rel="stylesheet" href="{% static 'css/feed.css' %}" />
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous" />
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@icon/unicons@3.0.6-alpha.0/unicons.min.css" rel="stylesheet" />
+        <style>
+            /* Create Post Popup styling */
+
+            /* Hide by default */
+.messages {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    width: 350px;
+    max-width: 90%;
+}
+
+/* Show when toggled */
+.messages.show {
+    display: block;
+}
+
+/* Optional: Overlay background when popup is open */
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+/* Show overlay when messages popup is open */
+.messages.show + .overlay {
+    display: block;
+}
+/* Popup styles */
+.messages {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    width: 350px;
+    max-width: 90%;
+}
+
+/* Show when toggled */
+.messages.show {
+    display: block;
+}
+
+/* Close button */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #555;
+    transition: 0.3s;
+}
+
+.close-btn:hover {
+    color: black;
+}
+
+/* Overlay background */
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+/* Show overlay when messages popup is open */
+.messages.show + .overlay {
+    display: block;
+}
+
+
+            .messages-popup {
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 400px;
+                background-color: white;
+                border-radius: 10px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                padding: 15px;
+            }
+            
+            .messages {
+                max-height: 400px;
+                overflow-y: auto;
+            }
+            
+            #closeMessages {
+                cursor: pointer;
+                font-size: 18px;
+                float: right;
+            }
+            
+
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+            }
+            
+
+            .close {
+                position: absolute;
+                top: 10px;
+                right: 15px;
+                font-size: 20px;
+                cursor: pointer;
+            }
+
+            input,
+            textarea {
+                width: 100%;
+                padding: 8px;
+                margin: 8px 0;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+            .submit-btn {
+                background-color: #28a745;
+                color: white;
+                padding: 10px 15px;
+                border: none;
+                cursor: pointer;
+                margin-left:  45%;
+                margin-bottom: 20px;
+                border-radius: 20px;
+            }
+            .category h6 {
+                display: inline-block;
+                padding: 10px;
+                cursor: pointer;
+            }
+            .category h6.active {
+                font-weight: bold;
+                border-bottom: 2px solid #000;
+            }
+            .tab-content {
+                display: none;
+            }
+            .tab-content.active {
+                display: block;
+            }
+            .user {
+                display: flex;
+                align-items: center;
+                padding: 10px;
+            }
+            .profile-pic img {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                margin-right: 10px;
+            }
+
+            .custom-navbar {
+                background-color: #023D54;
+            }
+            .custom-navbar .nav-link {
+                color: #ffffff;
+            }
+            .custom-navbar .nav-link:hover {
+                color: #cccccc; /* Lighter shade for hover effect */
+            }
+
+            .modal-content {
+                background-color: #ffffff;
+                border-radius: 10px;
+            }
+            .modal-header {
+                background-color: #281807;
+                color: #ffffff;
+            }
+            .thead-dark {
+                background-color: #281807;
+                color: #ffffff;
+            }
+            .btn-secondary {
+                background-color: #4caf50; /* Green from previous designs */
+                border: none;
+            }
+            .btn-secondary:hover {
+                background-color: #45a049;
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+            <!-- Logo on the left -->
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <img class="logo" src="{% static 'images/logo.png' %}" alt="Logo" />
+            </a>
+        
+            <!-- Toggler for mobile -->
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        
+            <!-- Menu items on the right -->
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                    <a class="nav-item nav-link active" href="{% url 'index' %}">Home <span class="sr-only">(current)</span></a>
+                    <a class="nav-item nav-link" href="{% url 'shop' %}">E-Commerce</a>  
+                    <a class="nav-item nav-link" href="{% url 'feed' %}">Community</a>  
+                    <a class="nav-item nav-link" href="{% url 'contacts' %}">Contacts</a>
+                    {% if user.is_authenticated %}
+                        <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>
+                        <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+                    {% else %}
+                        <a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
+                        <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+        <main class="main">
+            <div class="container">
+                <div class="left">
+                    
+                    <div class="sidebar">
+                        <a class="menu-item active">
+                            <span><i class="uil uil-home"></i></span>
+                            <h3>Home</h3>
+                        </a>               
+                        <label class="btn btn-primary" id="create-post-button">+</label>
+                    </div>
+                </div>
+                <div class="middle">
+                    <div class="feeds">
+                        {% for post in posts %}
+                        <div class="feed">
+                            <div class="head"></div>
+                            <div class="user">
+                                <div class="profile-pic">
+                                    <img src="{{ post.user.profile_pic.url }}" alt="Profile Picture" />
+                                </div>
+                                <div class="info">
+                                    <h3>{{ post.user.username }}</h3>
+                                    <small>{{ post.location }}, {{ post.created_at }}</small>
+                                </div>
+                            </div>
+
+                            <div class="photo">
+                                <img src="{{ post.post_image.url }}" alt="Post Image" />
+                            </div>
+
+                            <div class="action-button">
+                                <div class="interaction-button">
+                                    <span class="like-btn" data-post-id="{{ post.id }}">
+                                        <i class="uil uil-thumbs-up"></i>
+                                    </span>
+                                    <span><i class="uil uil-comment"></i></span>
+                                    <span><i class="uil uil-share"></i></span>
+                                </div>
+                                <div class="bookmark">
+                                    <span><i class="uil uil-bookmark"></i></span>
+                                </div>
+                            </div>
+
+                            <div class="liked-by">
+                                <p>Liked by <b>{{ post.likes_count }} others</b></p>
+                            </div>
+
+                            <div class="caption">
+                                <p><b>{{ post.username }}</b> {{ post.caption }}</p>
+                            </div>
+                            <div class="comments text-muted">View all comments</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Add JavaScript for AJAX -->
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                            // Add event listener to each like button
+                            document.querySelectorAll(".like-btn").forEach((button) => {
+                                button.addEventListener("click", function () {
+                                    const postId = this.getAttribute("data-post-id");
+
+                                    // Send AJAX request to like the post
+                                    fetch("/posts/like_post/", {
+                                        method: "POST",
+                                        headers: {
+                                            "Content-Type": "application/x-www-form-urlencoded",
+                                            "X-CSRFToken": getCSRFToken(),
+                                        },
+                                        body: `post_id=${postId}`,
+                                    })
+                                        .then((response) => response.json())
+                                        .then((data) => {
+                                            if (data.likes_count) {
+                                                // Update the likes count in the UI
+                                                const likesText = this.closest(".feed").querySelector(".liked-by b");
+                                                likesText.textContent = `${data.likes_count} others`;
+                                                // Change the like button icon to filled thumbs-up
+                                                const likeIcon = this.querySelector("i");
+                                                likeIcon.classList.remove("uil-thumbs-up");
+                                                likeIcon.classList.add("uil-heart");
+                                            } else if (data.error) {
+                                                // Handle the error (e.g., user already liked the post)
+                                                alert(data.error); // You can show a more custom error message if needed
+                                            }
+                                        })
+                                        .catch((error) => console.error("Error:", error));
+                                });
+                            });
+                        });
+
+                        function getCSRFToken() {
+                            let tokenElement = document.querySelector("meta[name='csrf-token']");
+                            return tokenElement ? tokenElement.getAttribute("content") : null;
+                        }
+                    </script>
+                </div>
+                <div class="right">
+                    <div id="profile-container">
+                        <a class="profile">
+                            <div class="profile-pic">
+                                <img src="{{ request.user.profile_pic.url }}" />
+                            </div>
+                            <div class="handle">
+                                <h4>{{request.user.username}}</h4>
+                                <p class="text-muted">@{{request.user.username}}</p>
+                            </div>
+                        </a>
+                    </div>
+                    
+                </div>    
+            </div>
+        </main>
+        
+        <!-- Popup Modal -->
+        <div class="messages" id="messages">
+            <span class="close-btn">&times;</span> <!-- Close Button -->
+        
+            <div class="category">
+                <h6 class="active" onclick="showTab('followers')">Followers</h6>
+                <h6 onclick="showTab('following')">Following</h6>
+            </div>
+        
+            <!-- Followers Section -->
+            <div id="followers" class="tab-content active">
+                {% for follow in followers %}
+                <div class="user">
+                    <div class="profile-pic">
+                        <img src="{{ follow.follower.profile_pic.url }}" alt="Profile Picture" />
+                    </div>
+                    <div class="user-body">
+                        <h5>{{ follow.follower.username }}</h5>
+                        <p class="text-muted">Following you</p>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted">No followers yet.</p>
+                {% endfor %}
+            </div>
+        
+            <!-- Following Section -->
+            <div id="following" class="tab-content">
+                {% for follow in following %}
+                <div class="user">
+                    <div class="profile-pic">
+                        <img src="{{ follow.following.profile_pic.url }}" alt="Profile Picture" />
+                    </div>
+                    <div class="user-body">
+                        <h5>{{ follow.following.username }}</h5>
+                        <p class="text-muted">You're following</p>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted">You're not following anyone yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        
+        
+        <!-- Button Popup -->
+        <div id="postModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2>Create a Post</h2>
+                <form action="{% url 'add_post' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <label>Location:</label>
+                    <input type="text" name="location" />
+
+                    <label>Post Image:</label>
+                    <input type="file" name="post_image" accept="image/*" />
+
+                    <label>Caption:</label>
+                    <textarea name="caption" rows="3"></textarea>
+
+                    <button type="submit" class="submit-btn">Post</button>
+                </form>
+            </div>
+        </div>
+        <script src="{% static 'js/feed.js' %}"></script>
+
+        <script>
+            document.getElementById("create-post-button").addEventListener("click", function () {
+                document.getElementById("postModal").style.display = "block";
+            });
+
+            function closeModal() {
+                document.getElementById("postModal").style.display = "none";
+            }
+
+            // Close the modal when clicking outside of it
+            window.onclick = function (event) {
+                let modal = document.getElementById("postModal");
+                if (event.target === modal) {
+                    modal.style.display = "none";
+                }
+            };
+
+            function showTab(tabId) {
+                // Remove 'active' class from all tab contents
+                document.querySelectorAll(".tab-content").forEach((tab) => {
+                    tab.classList.remove("active");
+                });
+
+                // Remove 'active' class from all tab buttons
+                document.querySelectorAll(".category h6").forEach((tab) => {
+                    tab.classList.remove("active");
+                });
+
+                // Add 'active' class to the selected tab content
+                document.getElementById(tabId).classList.add("active");
+
+                // Add 'active' class to the clicked tab button
+                document.querySelector(`.category h6[onclick="showTab('${tabId}')"]`).classList.add("active");
+            }
+            document.addEventListener("DOMContentLoaded", function () {
+                let profileContainer = document.getElementById("profile-container");
+                let messagesPopup = document.getElementById("messages");
+                let closeButton = document.querySelector(".close-btn");
+                
+                if (profileContainer && messagesPopup) {
+                    // Open popup when clicking profile
+                    profileContainer.addEventListener("click", function (event) {
+                        event.stopPropagation(); // Prevents immediate closing
+                        messagesPopup.classList.toggle("show");
+                    });
+            
+                    // Close popup when clicking the close button
+                    if (closeButton) {
+                        closeButton.addEventListener("click", function () {
+                            messagesPopup.classList.remove("show");
+                        });
+                    }
+            
+                    // Close popup when clicking outside
+                    document.addEventListener("click", function (event) {
+                        if (!profileContainer.contains(event.target) && !messagesPopup.contains(event.target)) {
+                            messagesPopup.classList.remove("show");
+                        }
+                    });
+                }
+            });
+            
+            
+        </script>
+
+        
+    </body>
+</html>

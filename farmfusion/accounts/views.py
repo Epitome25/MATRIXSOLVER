@@ -6,6 +6,7 @@ from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from .models import Wallet
+from businessmodel.models import Farmer, Investor ,InvestmentModel , Investment
 # Create your views here.
 def login_view(request):
     if request.method == "POST":
@@ -26,30 +27,39 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return render(request, "index.html")
+from django.db import IntegrityError, transaction
+
+
+from django.db import transaction
 
 def register(request):
     if request.method == "POST":
         username = request.POST["username"]
-        first_name=request.POST['firstname']
-        last_name=request.POST['lastname']
+        first_name = request.POST["firstname"]
+        last_name = request.POST["lastname"]
         email = request.POST["email"]
         password = request.POST["password"]
         confirmation = request.POST["confirmation"]
         profile_img = request.FILES.get("profileimage")
-        is_farmer = request.POST.get("is_farmer") == "T"  # Convert to boolean
+        is_farmer = request.POST.get("is_farmer") == "T"
         phno = request.POST["phone"]
-        dob=request.POST["dob"]
-        if CustomUser.objects.filter(username=username).exists():
-                return render(request,'register.html',{"error":'Username unavailable'})
-        elif CustomUser.objects.filter(email=email).exists():
-                return render(request,'register.html',{"error":'Email already used'})
-        elif CustomUser.objects.filter(phno=phno).exists():
-                return render(request,'register.html',{"error":'phone number has been used'})
-        else:
-            if password != confirmation:
-                return render(request, "register.html", {"message": "Passwords must match."})
+        dob = request.POST["dob"]
 
-            try:
+        print(f"Received POST data: {request.POST}")
+
+        # Check if user already exists
+        if CustomUser.objects.filter(username=username).exists():
+            return render(request, "register.html", {"error": "Username unavailable"})
+        elif CustomUser.objects.filter(email=email).exists():
+            return render(request, "register.html", {"error": "Email already used"})
+        elif CustomUser.objects.filter(phno=phno).exists():
+            return render(request, "register.html", {"error": "Phone number has been used"})
+        elif password != confirmation:
+            return render(request, "register.html", {"error": "Passwords must match."})
+
+        try:
+            with transaction.atomic():
+                # Create user
                 user = CustomUser.objects.create_user(
                     first_name=first_name,
                     last_name=last_name,
@@ -61,13 +71,44 @@ def register(request):
                     phno=phno,
                     dob=dob
                 )
-            except IntegrityError:
-                return render(request, "register.html", {"message": "Username already taken."})
+                print(f"User {user.username} created successfully, is_farmer: {is_farmer}")
 
-            login(request, user)
-            return HttpResponseRedirect(reverse("index"))
-    
+                # If user is a farmer, create a Farmer object explicitly
+                if is_farmer:
+                    land_area = request.POST.get("land_area", "").strip()
+                    soil_type = request.POST.get("soil_type", "").strip()
+
+                    print(f"DEBUG: Received land_area='{land_area}', soil_type='{soil_type}'")
+
+                    if not land_area:
+                        return render(request, "register.html", {"error": "Land area is required for farmers."})
+
+                    try:
+                        land_area = int(land_area)  # Convert to integer
+                        if land_area <= 0:
+                            raise ValueError("Land area must be positive")
+                    except ValueError as e:
+                        print(f"DEBUG: Land area conversion error: {e}")
+                        return render(request, "register.html", {"error": "Invalid land area value."})
+
+                    if not soil_type:
+                        return render(request, "register.html", {"error": "Soil type is required for farmers."})
+
+                    # Create Farmer manually
+                    farmer = Farmer.objects.create(
+                        user=user,
+                        land_area=land_area,
+                        soil_type=soil_type
+                    )
+                    print(f"Farmer created: {farmer}")
+
+        except IntegrityError as e:
+            print(f"Database error: {str(e)}")
+            return render(request, "register.html", {"error": f"Database error: {str(e)}"})
+
     return render(request, "register.html")
+
+
 
 @login_required
 def profile(request):
@@ -89,19 +130,17 @@ def profile(request):
     except Exception as e:
         print(e)
         return render(request, 'profile.html', {'error': str(e)})
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import Wallet
+
 
 @login_required
 def addmoney(request):
     if request.method == "POST":
+        error="no error"
         pin = request.POST.get("wallet_pin").strip()
         amount = request.POST.get("amount").strip()
 
         if not amount.isdigit() or int(amount) <= 0:
-            messages.error(request, "Invalid amount.")
+            error = "Invalid amount."
             return redirect("profile")
 
         amount = int(amount)
@@ -110,15 +149,15 @@ def addmoney(request):
             wallet = Wallet.objects.get(user=request.user)
 
             if wallet.wallet_pin != pin:
-                messages.error(request, "Incorrect PIN.")
+                error = "Incorrect PIN."
                 return redirect("profile")
 
             wallet.wallet_amount += amount
             wallet.save()
 
-            messages.success(request, f"Successfully added ${amount} to your wallet.")
+            print( f"Successfully added ${amount} to your wallet.")
         except Wallet.DoesNotExist:
-            messages.error(request, "No wallet found.")
+            error = "No wallet found."
     
     return redirect("profile")
 
@@ -126,11 +165,12 @@ def addmoney(request):
 @login_required
 def withdraw(request):
     if request.method == "POST":
+        error=""
         pin = request.POST.get("wallet_pin").strip()
         amount = request.POST.get("amount").strip()
 
         if not amount.isdigit() or int(amount) <= 0:
-            messages.error(request, "Invalid amount.")
+            error = "Invalid amount."
             return redirect("profile")
 
         amount = int(amount)
@@ -139,19 +179,19 @@ def withdraw(request):
             wallet = Wallet.objects.get(user=request.user)
 
             if wallet.wallet_pin != pin:
-                messages.error(request, "Incorrect PIN.")
+                error = "Incorrect PIN."
                 return redirect("profile")
 
             if wallet.wallet_amount < amount:
-                messages.error(request, "Insufficient balance.")
+                error = "Insufficient balance."
                 return redirect("profile")
 
             wallet.wallet_amount -= amount
             wallet.save()
 
-            messages.success(request, f"Successfully withdrew ${amount} from your wallet.")
+            print( f"Successfully withdrew ${amount} from your wallet.")
         except Wallet.DoesNotExist:
-            messages.error(request, "No wallet found.")
+            error = "No wallet found."
 
     return redirect("profile")
 
@@ -186,3 +226,23 @@ def createwallet(request):
             walletc.save()
             return redirect('profile')
         return redirect('profile')
+
+
+
+def get_user_location(request):
+    ip_address = request.META.get('REMOTE_ADDR')  # Get the user's IP
+    api_key = settings.IPSTACK_API_KEY  # Store your API key in settings.py
+    url = f'http://api.ipstack.com/{ip_address}?access_key={api_key}'
+    response = requests.get(url)
+    location_data = response.json()
+
+    if location_data and location_data.get('city'):
+        # Store the city, region, or any other part of the location
+        city = location_data.get('city')
+        # Update the user's location field
+        user = request.user
+        user.location = city
+        user.save()
+        return JsonResponse({'location': city})
+    else:
+        return JsonResponse({'error': 'Location not found'})

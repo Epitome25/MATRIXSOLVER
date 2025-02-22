@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous" />
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static 'css/farmer.css' %}">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+        <a class="navbar-brand" href="{% url 'index' %}">
+            <img class="logo" src="{% static 'images/logo.png' %}" alt="Logo" />
+        </a>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav ml-auto">
+                <a class="nav-item nav-link active" href="{% url 'index' %}">Home</a>
+                <a class="nav-item nav-link" href="{% url 'services' %}">Services</a>
+                <a class="nav-item nav-link" href="{% url 'products' %}">Products</a>
+                <a class="nav-item nav-link" href="{% url 'partners' %}">Partners</a>
+                <a class="nav-item nav-link" href="{% url 'contacts' %}">Contacts</a>
+                {% if user.is_authenticated %}
+                    <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>
+                    <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
+                    <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Investment Section -->
+    <div id="allInvestments" class="wcu-section pt-5 pb-5 investment-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="wcu-section-heading">Support Someone</h1>
+                    <p class="wcu-section-description">Contribute to the investment model you are interested in.</p>
+                </div>
+
+                {% for model in all_investment_models %}
+                    <div class="col-12">
+                        <div class="wcu-card p-3 mb-3">
+                            <div class="d-flex flex-row justify-content-between">
+                                <div>
+                                    <h1 class="wcu-card-title mt-3">{{ model.name }}</h1>
+                                    <img class="img-thumbnail" src="{% static 'images/farm1.jpg' %}" alt="{{ model.name }}">
+                                </div>
+                                <div class="d-flex flex-column justify-content-between">
+                                    <p class="wcu-card-description">
+                                        Support this investment with your contribution. Your support will help improve the project.
+                                    </p>
+
+                                    <!-- Form to contribute to the investment -->
+                                    <form method="post" action="{% url 'support_posts' %}">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <label for="investingAmount">Amount to Contribute (₹):</label>
+                                            <input type="number" name="investingamount" class="form-control" required placeholder="Enter amount in ₹" min="1">
+                                            <input type="hidden" name="modelid" value="{{ model.id }}">
+                                        </div>
+                                        <button type="submit" class="btn btn-success">Contribute Now</button>
+                                    </form>
+
+                                    <!-- Show existing support posts -->
+                                    <h5>Existing Supporters:</h5>
+                                    {% for support_post in model.support_posts.all %}
+                                        <div class="support-post">
+                                            <p>{{ support_post.user.username }} contributed ₹{{ support_post.amount }}.</p>
+                                        </div>
+                                    {% empty %}
+                                        <p>No one has contributed yet.</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

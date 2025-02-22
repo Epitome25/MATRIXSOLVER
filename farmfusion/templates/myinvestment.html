@@ -1,0 +1,439 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous" />
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static 'css/farmer.css' %}">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <style>
+      /* Navbar Styling */
+.custom-navbar {
+  background-color: #023D54; /* Deep blue-green */
+  padding: 15px 20px 15px 20px; /* Consistent padding, left and right */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    display: flex;
+    justify-content: space-between; /* Ensures left-right split */
+    align-items: center;
+    padding-right: 180px;
+}
+
+.custom-navbar .navbar-brand {
+  margin-right: auto; /* Pushes logo to the left */
+}
+
+.custom-navbar .navbar-brand img {
+  height: 50px; /* Logo size */
+}
+
+/* Menu items */
+.custom-navbar .navbar-nav {
+  list-style: none;
+  display: flex;
+  gap: 20px; /* Space between items */
+  margin: 0;
+  padding: 0;
+}
+
+.custom-navbar .nav-item {
+  position: relative;
+}
+
+.custom-navbar .nav-link {
+  color: #FFFF66; /* Bright yellow text */
+  text-decoration: none;
+  font-weight: 600;
+  padding: 10px 15px;
+  transition: color 0.3s ease;
+}
+
+.custom-navbar .nav-link:hover,
+.custom-navbar .nav-link:focus {
+  color: #94DEA5; /* Light green hover */
+}
+
+/* Toggler styling */
+.custom-navbar .navbar-toggler {
+  border-color: #FFFF66; /* Bright yellow border */
+}
+
+.custom-navbar .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23FFFF66' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Ensure collapse aligns to right */
+.custom-navbar .navbar-collapse {
+  flex-grow: 0; /* Prevents collapse from stretching */
+  justify-content: flex-end; /* Explicitly aligns to right */
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+  .custom-navbar .navbar-nav {
+      gap: 10px; /* Reduced gap on mobile */
+      padding: 10px; /* Padding when collapsed */
+      text-align: center; /* Center items when collapsed */
+  }
+  .custom-navbar .nav-link {
+      padding: 8px 10px; /* Smaller padding on mobile */
+  }
+  .custom-navbar .navbar-collapse {
+      justify-content: center; /* Center content when collapsed */
+  }
+}
+
+.custom-navbar .navbar-toggler {
+  border-color: #FFFF66; /* Bright yellow border */
+}
+
+.custom-navbar .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23FFFF66' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Ensure collapse aligns to right */
+.custom-navbar .navbar-collapse {
+  flex-grow: 0; /* Prevents collapse from stretching */
+  justify-content: flex-end; /* Explicitly aligns to right */
+}
+
+/* Toggle Button Styles */
+.toggle-container {
+  position: fixed;
+  top: 80px; /* Moved down to avoid navbar overlap (navbar height ~60px + padding) */
+  right: 20px;
+  z-index: 1001; /* Above other content but below modal */
+  display: flex;
+  gap: 10px;
+}
+
+.toggle-btn {
+  background-color: #6c757d; /* Muted gray for unselected */
+  color: #ffffff;
+  border: none;
+  margin: 20px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0.7;
+}
+
+.toggle-btn:hover {
+  background-color: #5a6268;
+  opacity: 0.9;
+}
+
+.toggle-btn.active {
+  background-color: #4CAF50; /* Bright green for selected */
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.8);
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Floating Button Styles */
+.float-btn {
+  position: fixed;
+  top: 130px; /* Moved down further to avoid toggle buttons (80px + toggle height ~40px) */
+  right: 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  padding: 0;
+  z-index: 1000;
+}
+
+      /* Investment Sections */
+      .investment-section {
+        display: none;
+      }
+
+      .investment-section.active {
+        display: block;
+      }
+
+      /* Modal Styling */
+      .modal-header {
+        background-color: #1a3c34;
+        color: #ffffff;
+      }
+
+      .btn-success {
+        background-color: #4CAF50;
+        border-color: #4CAF50;
+      }
+
+      .btn-success:hover {
+        background-color: #45a049;
+      }
+
+      .btn-secondary {
+        background-color: #6c757d;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+      <!-- Logo on the left -->
+      <a class="navbar-brand mr-auto" href="{% url 'index' %}">
+          <img class="logo" src="{% static 'images/logo.png' %}" alt="FarmFusion" />
+      </a>
+  
+      <!-- Toggler for mobile -->
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+  
+      <!-- Menu items on the right -->
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+          <ul class="navbar-nav">
+              <li class="nav-item">
+                  <a class="nav-link active" href="{% url 'index' %}">Home</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="{% url 'shop' %}">E-Commerce</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="{% url 'feed' %}">Community</a>
+              </li>
+              {% if user.is_farmer %}
+                  <li class="nav-item">
+                      <a class="nav-link" href="{% url 'myprojects' %}">My Projects</a>
+                  </li>
+              {% else %}
+                  <li class="nav-item">
+                      <a class="nav-link" href="{% url 'showallmodels' %}">My Investments</a>
+                  </li>
+              {% endif %}
+              <li class="nav-item">
+                  <a class="nav-link" href="{% url 'contacts' %}">Contacts</a>
+              </li>
+              {% if user.is_authenticated %}
+                  <li class="nav-item">
+                      <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                  </li>
+              {% else %}
+                  <li class="nav-item">
+                      <a class="nav-link" href="{% url 'register' %}">Register</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link" href="{% url 'login' %}">Login</a>
+                  </li>
+              {% endif %}
+          </ul>
+      </div>
+  </nav>
+
+    <!-- Toggle Button -->
+    <div class="toggle-container">
+      <button id="toggleMyInvestments" class="toggle-btn active">My Investments</button>
+      <button id="toggleAllInvestments" class="toggle-btn">All Investments</button>
+    </div>
+
+    <!-- My Investments Section -->
+    <div id="myInvestments" class="wcu-section pt-5 pb-5 investment-section active">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <h1 class="wcu-section-heading">My Investments</h1>
+            <p class="wcu-section-description">
+              Here are the projects you have invested in.
+            </p>
+          </div>
+          {% if my_investments %}
+            {% for investment in my_investments %}
+              <div class="col-12">
+                <div class="wcu-card p-3 mb-3">
+                  <div class="d-flex flex-row justify-content-between">
+                    <div>
+                      <h1 class="wcu-card-title mt-3">{{ investment.investment_model.name }}
+</h1>
+                      <img class="img-thumbnail" src="{% static 'images/farm1.jpg' %}" alt="{{ investment.investment_model.name }}
+">
+                    </div>
+                    <div class="d-flex flex-column justify-content-between">
+                      <p class="wcu-card-description">
+                        You’ve invested ₹{{ investment.investment_amount }} in this project.
+                      </p>
+                      {% with total=investment.investment_model.farmer_share|add:investment.investment_model.working_share %}
+  <div class="w3-light-grey w3-round-xlarge bar" style="overflow: hidden; position: relative;">
+    <div class="w3-container green-bar" style="width: {{ investment.investment_model.farmer_share|default:0 }}%; background-color: green; border-top-left-radius: 16px; border-bottom-left-radius: 16px; height: 24px; float: left; color: white; text-align: center; line-height: 24px; font-weight: bold;">
+      {{ investment.investment_model.farmer_share }}%
+    </div>
+    <div class="w3-container blue-bar" style="width: {{ investment.investment_model.working_share|floatformat:2 }}%; background-color: skyblue; border-top-right-radius: 16px; border-bottom-right-radius: 16px; height: 24px; float: left; color: white; text-align: center; line-height: 24px; font-weight: bold;">
+      {{ investment.investment_model.working_share }}%
+    </div>
+  </div>
+{% endwith %}
+
+                      <div class="d-flex flex-row justify-content-around">
+                        <div>
+                          <p>Capital:</p>
+                          <div class="d-flex flex-row">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-bank icon" viewBox="0 0 16 16">
+                              <path d="m8 0 6.61 3h.89a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H15v7a.5.5 0 0 1 .485.38l.5 2a.498.498 0 0 1-.485.62H.5a.498.498 0 0 1-.485-.62l.5-2A.5.5 0 0 1 1 13V6H.5a.5.5 0 0 1-.5-.5v-2A.5.5 0 0 1 .5 3h.89zM3.777 3h8.447L8 1zM2 6v7h1V6zm2 0v7h2.5V6zm3.5 0v7h1V6zm2 0v7H12V6zM13 6v7h1V6zm2-1V4H1v1zm-.39 9H1.39l-.25 1h13.72z"/>
+                            </svg>
+                            <p class="icon-title">{{ investment.investment_model.capital }}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <p>Estimated Time:</p>
+                          <div class="d-flex flex-row">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-clock icon" viewBox="0 0 16 16">
+                              <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>
+                              <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/>
+                            </svg>
+                            <p class="icon-title">{{ investment.investment_model.estimated_time }}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <p class="text-end">By {{ investment.investment_model.farmer.name }}</p>
+                      <button class="btn btn-warning butt">View Details</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="col-12">
+              <p class="text-center">You have not made any investments yet.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- All Investments Section -->
+    <div id="allInvestments" class="wcu-section pt-5 pb-5 investment-section">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <h1 class="wcu-section-heading">Want to invest?</h1>
+            <p class="wcu-section-description">
+              We use both original recipes and classic versions of famous food items.
+            </p>
+          </div>
+          {% for model in all_investment_models %}
+            <div class="col-12">
+              <div class="wcu-card p-3 mb-3">
+                <div class="d-flex flex-row justify-content-between">
+                  <div>
+                    <h1 class="wcu-card-title mt-3">{{ model.name }}</h1>
+                    <img class="img-thumbnail" src="{% static 'images/farm1.jpg' %}" alt="{{ model.name }}">
+                  </div>
+                  <div class="d-flex flex-column justify-content-between">
+                    <p class="wcu-card-description">
+                      Experience fine dining at the comfort of your home. All our orders are carefully packed and arranged to give you nothing less than perfect.
+                    </p>
+                    {% with total=model.farmer_share|add:model.working_share %}
+                      <div class="w3-light-grey w3-round-xlarge bar" style="overflow: hidden; position: relative;">
+                        <div class="w3-container green-bar" style="width: {{ model.farmer_share|default:0 }}%; background-color: green; border-top-left-radius: 16px; border-bottom-left-radius: 16px; height: 24px; float: left; color: white; text-align: center; line-height: 24px; font-weight: bold;">{{ model.farmer_share }}%</div>
+                        <div class="w3-container blue-bar" style="width: {{ model.working_share|floatformat:2 }}%; background-color: skyblue; border-top-right-radius: 16px; border-bottom-right-radius: 16px; height: 24px; float: left; color: white; text-align: center; line-height: 24px; font-weight: bold;">{{ model.working_share }}%</div>
+                      </div>
+                    {% endwith %}
+                    <div class="d-flex flex-row justify-content-around">
+                      <div>
+                        <p>Capital:</p>
+                        <div class="d-flex flex-row">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-bank icon" viewBox="0 0 16 16">
+                            <path d="m8 0 6.61 3h.89a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H15v7a.5.5 0 0 1 .485.38l.5 2a.498.498 0 0 1-.485.62H.5a.498.498 0 0 1-.485-.62l.5-2A.5.5 0 0 1 1 13V6H.5a.5.5 0 0 1-.5-.5v-2A.5.5 0 0 1 .5 3h.89zM3.777 3h8.447L8 1zM2 6v7h1V6zm2 0v7h2.5V6zm3.5 0v7h1V6zm2 0v7H12V6zM13 6v7h1V6zm2-1V4H1v1zm-.39 9H1.39l-.25 1h13.72z"/>
+                          </svg>
+                          <p class="icon-title">{{ model.capital }}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <p>Estimated Time:</p>
+                        <div class="d-flex flex-row">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-clock icon" viewBox="0 0 16 16">
+                            <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>
+                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/>
+                          </svg>
+                          <p class="icon-title">{{ model.estimated_time }}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="text-end">By {{ model.farmer.name }}</p>
+                    <button class="btn btn-warning butt" data-toggle="modal" data-target="#investModal{{ model.id }}">Invest</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal for Investment -->
+            <div class="modal fade" id="investModal{{ model.id }}" tabindex="-1" role="dialog" aria-labelledby="investModalLabel{{ model.id }}" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="investModalLabel{{ model.id }}">Invest in {{ model.name }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">×</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <form id="investmentForm{{ model.id }}" action="{% url 'invest' %}" method="post">
+                      {% csrf_token %}
+                      <div class="form-group row">
+                        <label for="investmentAmount{{ model.id }}" class="col-sm-4 col-form-label text-right">Amount to Invest (₹):</label>
+                        <div class="col-sm-8">
+                          <input type="number" class="form-control" id="investmentAmount{{ model.id }}" name="investamount" min="0" step="1000" required placeholder="Enter amount in ₹">
+                          <input type="hidden" name="modelid" value="{{ model.id }}">
+                          <small class="form-text text-muted">Enter the amount you would like to invest.</small>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" form="investmentForm{{ model.id }}" class="btn btn-success">Invest Now</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Toggle Button Functionality
+      const myInvestmentsBtn = document.getElementById('toggleMyInvestments');
+      const allInvestmentsBtn = document.getElementById('toggleAllInvestments');
+      const myInvestmentsSection = document.getElementById('myInvestments');
+      const allInvestmentsSection = document.getElementById('allInvestments');
+
+      myInvestmentsBtn.addEventListener('click', function() {
+        myInvestmentsSection.classList.add('active');
+        allInvestmentsSection.classList.remove('active');
+        myInvestmentsBtn.classList.add('active');
+        allInvestmentsBtn.classList.remove('active');
+      });
+
+      allInvestmentsBtn.addEventListener('click', function() {
+        allInvestmentsSection.classList.add('active');
+        myInvestmentsSection.classList.remove('active');
+        allInvestmentsBtn.classList.add('active');
+        myInvestmentsBtn.classList.remove('active');
+      });
+    </script>
+  </body>
+</html>
